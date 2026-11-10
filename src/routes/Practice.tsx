@@ -4,7 +4,7 @@ import { modeById } from '../exercises/modes';
 import { INTERVALS, type IntervalInfo } from '../theory/intervals';
 import { DEFAULT_RANGE, randInt, pick } from '../theory/notes';
 import { melodic } from '../theory/sequence';
-import { playSequence, stopAll } from '../audio/engine';
+import { isPlaying, playSequence, stopAll } from '../audio/engine';
 import { preloadInstrument } from '../audio/instruments';
 import { StrobeRing, type RingState } from '../ui/StrobeRing';
 import { CloseIcon } from '../ui/icons';
@@ -38,6 +38,7 @@ export function Practice() {
   const [right, setRight] = useState(0);
   const [done, setDone] = useState(false);
   const advanceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const playToken = useRef(0);
 
   useEffect(() => {
     preloadInstrument('piano');
@@ -47,13 +48,20 @@ export function Practice() {
     };
   }, []);
 
-  const play = useCallback(async (question: Question) => {
+  /**
+   * `interrupt` is only used when moving to a new question. A replay tap while
+   * the notes are still sounding is ignored, so playback never overlaps.
+   */
+  const play = useCallback(async (question: Question, interrupt = false) => {
+    if (!interrupt && isPlaying()) return;
+    const token = ++playToken.current;
     setRing('playing');
     setHeard(true);
     try {
-      await playSequence(melodic([question.low, question.low + question.answer.semitones]));
+      await playSequence(melodic([question.low, question.low + question.answer.semitones]), { interrupt });
     } finally {
-      setRing((r) => (r === 'playing' ? 'idle' : r));
+      // An interrupted playback must not reset the ring of the one replacing it.
+      if (token === playToken.current) setRing((r) => (r === 'playing' ? 'idle' : r));
     }
   }, []);
 
@@ -66,7 +74,7 @@ export function Practice() {
     setQ(nq);
     setPicked(null);
     setN((x) => x + 1);
-    void play(nq);
+    void play(nq, true);
   }, [n, play]);
 
   function choose(semitones: number) {
@@ -124,7 +132,7 @@ export function Practice() {
   const answered = picked !== null;
   const wrong = answered && picked !== q.answer.semitones;
   const ringLabel = !heard ? 'Listen' : ring === 'correct' ? q.answer.short : ring === 'wrong' ? q.answer.short : 'Again';
-  const ringSub = !heard ? 'Tap to play' : answered ? q.answer.name : 'Tap to replay';
+  const ringSub = ring === 'playing' ? 'Playing' : !heard ? 'Tap to play' : answered ? q.answer.name : 'Tap to replay';
 
   return (
     <div className={styles.page}>

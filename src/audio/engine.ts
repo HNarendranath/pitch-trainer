@@ -38,37 +38,93 @@ export async function unlockAudio(): Promise<void> {
   }
 }
 
-let activeTimer: ReturnType<typeof setTimeout> | undefined;
-let activeInstrument: InstrumentId | undefined;
-
-/**
- * Play a sequence and resolve when it has finished sounding.
- * Starting a new sequence cuts off the previous one.
- */
-export async function playSequence(seq: Sequence, instrument: InstrumentId = 'piano'): Promise<void> {
-  await unlockAudio();
-  stopAll();
-  const sampler = await getInstrument(instrument);
-  activeInstrument = instrument;
-  const t0 = Tone.now() + 0.06;
-  for (const ev of seq) {
-    sampler.triggerAttackRelease(
-      ev.notes.map((n) => midiToFreq(n)),
-      ev.dur,
-      t0 + ev.at,
-      ev.velocity ?? 0.8,
-    );
-  }
-  const ms = (sequenceLength(seq) + 0.1) * 1000;
-  return new Promise((resolve) => {
-    activeTimer = setTimeout(resolve, ms);
-  });
+interface Playback {
+  done: Promise<void>;
+  finish: () => void;
+  timer: ReturnType<typeof setTimeout>;
+  sampler: Tone.Sampler;
 }
 
-export function stopAll(): void {
-  if (activeTimer) clearTimeout(activeTimer);
-  activeTimer = undefined;
-  if (activeInstrument) {
-    void getInstrument(activeInstrument).then((s) => s.releaseAll());
+let current: Playback | undefined;
+/** Set while a play() call is loading/unlocking, so rapid taps can't race it. */
+let starting: Promise<void> | undefined;
+/** Bumped on every play/stop; a play that was superseded while loading never sounds. */
+let generation = 0;
+
+export function isPlaying(): boolean {
+  return current !== undefined || starting !== undefined;
+}
+
+export interface PlayOptions {
+  instrument?: InstrumentId;
+  /**
+   * false (default): if something is already playing, this call is ignored and
+   * returns the in-flight playback, so repeated taps never overlap.
+   * true: cut off whatever is playing (e.g. moving to the next question).
+   */
+  interrupt?: boolean;
+}
+
+/** Play a sequence; resolves when it has finished sounding (or was stopped). */
+export function playSequence(seq: Sequence, { instrument = 'piano', interrupt = false }: PlayOptions = {}): Promise<void> {
+  if (!interrupt) {
+    if (current) return current.done;
+    if (starting) return starting;
   }
+  stopAll();
+  const gen = generation;
+  let run!: Promise<void>;
+  run = (async () => {
+    await unlockAudio();
+    const sampler = await getInstrument(instrument);
+    if (gen !== generation) return; // stopped or replaced while loading
+    // Notes go on the Transport rather than straight onto the audio clock so
+    // that stopAll() can cancel notes that haven't started yet.
+    const transport = Tone.getTransport();
+    for (const ev of seq) {
+      const freqs = ev.notes.map((n) => midiToFreq(n));
+      transport.schedule((time) => sampler.triggerAttackRelease(freqs, ev.dur, time, ev.velocity ?? 0.8), ev.at);
+    }
+    transport.start('+0.06', 0);
+
+    let finish!: () => void;
+    const done = new Promise<void>((resolve) => (finish = resolve));
+    const timer = setTimeout(() => {
+      if (current?.done === done) {
+        stopTransport();
+        current = undefined;
+      }
+      finish();
+    }, (sequenceLength(seq) + 0.15) * 1000);
+    current = { done, finish, timer, sampler };
+    if (starting === run) starting = undefined;
+    return done;
+  })();
+  starting = run;
+  void run.finally(() => {
+    if (starting === run) starting = undefined;
+  });
+  return run;
+}
+
+function stopTransport(): void {
+  const transport = Tone.getTransport();
+  transport.stop();
+  transport.cancel(0);
+}
+
+/** Cut off any playback immediately, including notes not yet started. */
+export function stopAll(): void {
+  generation++;
+  starting = undefined;
+  if (!current) {
+    stopTransport();
+    return;
+  }
+  const { timer, sampler, finish } = current;
+  current = undefined;
+  clearTimeout(timer);
+  stopTransport();
+  sampler.releaseAll();
+  finish();
 }
