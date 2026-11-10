@@ -35,6 +35,17 @@
   --on-accent: #10201d;
   --focus: var(--abalone-violet);
 
+  /* Mistake heatmap: one hue (violet), four steps, validated with the dataviz
+     ordinal checks against --surface. Ink per step chosen by APCA. */
+  --heat-1: color-mix(in oklab, var(--accent-2) 46%, var(--surface));
+  --heat-2: color-mix(in oklab, var(--accent-2) 64%, var(--surface));
+  --heat-3: color-mix(in oklab, var(--accent-2) 82%, var(--surface));
+  --heat-4: var(--accent-2);
+  --heat-ink-1: var(--text);
+  --heat-ink-2: var(--text);
+  --heat-ink-3: var(--text);
+  --heat-ink-4: var(--on-accent);
+
   /* Type: one family, Mona Sans, with width as the expressive axis. */
   --font: 'Mona Sans Variable', 'Noto Music', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-music: 'Noto Music', 'Mona Sans Variable', serif;
@@ -89,6 +100,7 @@
     --wrong: #a5650d;
     --on-accent: #ffffff;
     --focus: #4b53b8;
+    --heat-ink-3: #ffffff;
   }
 }
 :root[data-theme='light'] {
@@ -104,4 +116,5 @@
   --wrong: #a5650d;
   --on-accent: #ffffff;
   --focus: #4b53b8;
+  --heat-ink-3: #ffffff;
 }

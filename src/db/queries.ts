@@ -111,3 +111,13 @@ export async function modeSummaries(): Promise<ModeSummary[]> {
     }))
     .sort((a, b) => b.lastTs - a.lastTs);
 }
+
+/** Every answer in an exercise, oldest first. */
+export async function modeAttempts(mode: ModeId): Promise<Attempt[]> {
+  return db.attempts.where('[mode+level+ts]').between([mode, Dexie.minKey, Dexie.minKey], [mode, Dexie.maxKey, Dexie.maxKey]).sortBy('ts');
+}
+
+/** Timestamps of answers from `since` on (for the daily chart). */
+export async function attemptTimesSince(since: number): Promise<number[]> {
+  return (await db.attempts.where('ts').aboveOrEqual(since).keys()) as number[];
+}

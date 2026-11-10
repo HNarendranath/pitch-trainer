@@ -1,0 +1,310 @@
+/* Charts follow the dataviz method: thin marks in one hue, hairline solid
+   grid, text in text colours (never the data colour), values reachable
+   without hover. */
+
+.figure {
+  margin: 0;
+  display: grid;
+  gap: var(--s2);
+}
+
+.readout {
+  font-size: var(--step--1);
+  font-weight: 600;
+  min-block-size: 1.4em;
+}
+
+.note {
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+/* ---------- Answers per day ---------- */
+
+.dailyFrame {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--s2);
+}
+
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: var(--step--2);
+  color: var(--text-muted);
+  text-align: end;
+  /* Align the labels' centres with the top gridline and the baseline. */
+  margin-block: -0.6em;
+}
+
+.dailyPlot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  block-size: 120px;
+  border-block-end: 1px solid var(--line);
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.gridline {
+  position: absolute;
+  inset-inline: 0;
+  block-size: 1px;
+  background: color-mix(in oklab, var(--line) 60%, transparent);
+}
+
+/* The goal: a solid reference line, labelled, never dashed. */
+.goal {
+  position: absolute;
+  inset-inline: 0;
+  block-size: 1px;
+  background: var(--text-muted);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The goal's value sits in the axis gutter, level with its line. */
+.goalTick {
+  position: absolute;
+  inset-inline-end: calc(100% + var(--s2));
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  white-space: nowrap;
+  font-size: var(--step--2);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+.legendLine {
+  inline-size: 16px;
+  block-size: 1px;
+  background: var(--text-muted);
+}
+
+.col {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  block-size: 100%;
+  border-radius: 3px 3px 0 0;
+}
+
+.colBar {
+  inline-size: min(100%, 24px);
+  background: var(--accent);
+  border-radius: 3px 3px 0 0;
+}
+
+.col[data-selected] {
+  background: color-mix(in oklab, var(--text) 8%, transparent);
+}
+
+.col[data-selected] .colBar {
+  background: color-mix(in oklab, var(--accent) 75%, var(--text));
+}
+
+.xAxis {
+  display: flex;
+  justify-content: space-between;
+  padding-block-start: var(--s1);
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+/* ---------- Accuracy per item ---------- */
+
+.bars {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+
+.bars tr > * {
+  padding-block: 5px;
+}
+
+.barLabel {
+  text-align: start;
+  font-weight: 650;
+  font-stretch: 108%;
+  padding-inline-end: var(--s3);
+  white-space: nowrap;
+  inline-size: 1%;
+}
+
+.barCell {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.track {
+  flex: 1;
+  block-size: 8px;
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--line) 55%, transparent);
+  overflow: hidden;
+}
+
+.bar {
+  display: block;
+  block-size: 100%;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+}
+
+.barValue {
+  inline-size: 3.2em;
+  text-align: end;
+  font-weight: 650;
+}
+
+.barCount {
+  inline-size: 2.4em;
+  text-align: end;
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+/* Fewer than five answers: still shown, quieter, since it can swing a lot. */
+.bars tr[data-few] .bar {
+  opacity: 0.5;
+}
+.bars tr[data-few] .barValue {
+  color: var(--text-muted);
+}
+
+/* ---------- Mistake heatmap ---------- */
+
+.heatWrap {
+  overflow-x: auto;
+}
+
+.heat {
+  border-collapse: separate;
+  border-spacing: 2px;
+  margin-inline: -2px;
+  table-layout: fixed;
+  inline-size: calc(100% + 4px);
+}
+
+.heatCorner {
+  inline-size: 2.6em;
+}
+
+.heatKey {
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+.heatHead {
+  font-size: var(--step--2);
+  font-weight: 650;
+  color: var(--text-muted);
+  text-align: center;
+  padding-block: 2px;
+}
+
+tbody .heatHead {
+  text-align: end;
+  padding-inline-end: 6px;
+}
+
+.heatCell,
+.heatEmpty,
+.heatSelf {
+  block-size: 28px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: var(--step--2);
+  font-weight: 700;
+}
+
+.heatEmpty {
+  background: var(--surface);
+}
+
+/* The diagonal can't be a mistake: left as background. */
+.heatSelf {
+  background: transparent;
+}
+
+.heatCell {
+  cursor: pointer;
+}
+
+.heatCell[data-step='1'] { background: var(--heat-1); color: var(--heat-ink-1); }
+.heatCell[data-step='2'] { background: var(--heat-2); color: var(--heat-ink-2); }
+.heatCell[data-step='3'] { background: var(--heat-3); color: var(--heat-ink-3); }
+.heatCell[data-step='4'] { background: var(--heat-4); color: var(--heat-ink-4); }
+
+.heatCell[data-selected] {
+  outline: 2px solid var(--text);
+  outline-offset: -2px;
+}
+
+.scale {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+.scale > span:first-child {
+  margin-inline-end: var(--s1);
+}
+
+.scaleStep {
+  inline-size: 18px;
+  block-size: 10px;
+  border-radius: 2px;
+}
+
+.scaleStep[data-step='1'] { background: var(--heat-1); }
+.scaleStep[data-step='2'] { background: var(--heat-2); }
+.scaleStep[data-step='3'] { background: var(--heat-3); }
+.scaleStep[data-step='4'] { background: var(--heat-4); margin-inline-end: var(--s1); }
+
+.scaleTitle {
+  margin-inline-start: var(--s2);
+}
+
+/* ---------- Ranked mix-ups (long names) ---------- */
+
+.pairs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s2);
+}
+
+.pairs li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+.pairs strong {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.pairCount {
+  font-weight: 650;
+  color: var(--text);
+}

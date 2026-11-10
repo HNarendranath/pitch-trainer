@@ -5,6 +5,7 @@ import { buildHistory, pickNext, type AttemptLite } from '../srs/scheduler';
 import { levelAttempts, recordAttempt, setLastLevel } from '../db/queries';
 import { playSequence, stopAll } from '../audio/engine';
 import { preloadInstrument } from '../audio/instruments';
+import { answerFeedback, buzz } from '../audio/feedback';
 import { MicError, micPermission, PitchListener, type MicProblem, type PitchReading } from '../mic/pitch';
 import { instrumentsFor, type InstrumentId } from '../theory/instruments';
 import { noteName, pick, pitchClass, prettyAccidentals } from '../theory/notes';
@@ -166,6 +167,7 @@ export function SingRunner({ level, onExit, onAgain }: Props) {
     const off = s.heldMidi === null ? null : centsOff(s.heldMidi, cq.target);
     const correct = !cq.blind || (off !== null && Math.abs(off) <= cq.tolerance);
     setStage(correct ? 'matched' : 'missed');
+    answerFeedback(correct);
     if (cq.blind) {
       const sungName = s.heldMidi === null ? '' : singerNoteName(pitchClass(Math.round(s.heldMidi)));
       const by = off === null ? '' : Math.abs(off) < 6 ? 'dead on' : `${Math.round(Math.abs(off))}¢ ${off > 0 ? 'sharp' : 'flat'}`;
@@ -175,7 +177,7 @@ export function SingRunner({ level, onExit, onAgain }: Props) {
     }
     await record(cq, correct);
     if (correct) timer.current = setTimeout(next, 1400);
-    else void playTarget(cq);
+    else setTimeout(() => qRef.current === cq && void playTarget(cq), 350); // after the miss cue
   }
 
   /** Give up on this one: counts as a miss, and you hear the note. */
@@ -202,7 +204,10 @@ export function SingRunner({ level, onExit, onAgain }: Props) {
     sessionRef.current = all;
     setSession(all);
     const res = await recordAttempt({ mode: 'singing', level: level.n, item: cq.itemId, answer, correct, ms, ts: Date.now() }, SING_LEVELS.length);
-    if (res.unlocked) setUnlockedNow(res.unlocked);
+    if (res.unlocked) {
+      setUnlockedNow(res.unlocked);
+      buzz('unlock');
+    }
   }
 
   function next() {

@@ -252,6 +252,19 @@
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
 }
 
+.goalMet {
+  justify-self: start;
+  padding: var(--s2) var(--s4);
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  font-weight: 650;
+}
+
+.goalLine {
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
 .mixups {
   margin-block-start: var(--s3);
   display: grid;

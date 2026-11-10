@@ -3,9 +3,11 @@ import type { ExerciseDef, Level, Question } from '../exercises/types';
 import { modeById } from '../exercises/modes';
 import { buildHistory, pickNext, type AttemptLite } from '../srs/scheduler';
 import { levelReadiness, readinessText } from '../srs/mastery';
-import { levelAttempts, recordAttempt, setLastLevel } from '../db/queries';
+import { answeredToday, levelAttempts, recordAttempt, setLastLevel } from '../db/queries';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { isPlaying, playSequence, stopAll } from '../audio/engine';
 import { preloadInstrument } from '../audio/instruments';
+import { answerFeedback, buzz } from '../audio/feedback';
 import { instrumentsFor } from '../theory/instruments';
 import { pick } from '../theory/notes';
 import { sequenceNotes } from '../theory/sequence';
@@ -115,6 +117,7 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
     setPicked(optionId);
     const correct = optionId === q.answerId;
     setRing(correct ? 'correct' : 'wrong');
+    answerFeedback(correct);
     const ms = Date.now() - firstHeardAt.current;
     const attempt: SessionAttempt = { item: q.itemId, answer: optionId, correct, ms, level: level.n };
     const all = [...session, attempt];
@@ -123,7 +126,10 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
     followUp.current = correct ? undefined : options.some((o) => o.id === optionId) ? optionId : undefined;
 
     const res = await recordAttempt({ mode: def.id, level: level.n, item: q.itemId, answer: optionId, correct, ms, ts: Date.now() }, def.levels.length);
-    if (res.unlocked) setUnlockedNow(res.unlocked);
+    if (res.unlocked) {
+      setUnlockedNow(res.unlocked);
+      buzz('unlock');
+    }
     if (correct) advanceTimer.current = setTimeout(() => next(all), 900);
   }
 
@@ -224,6 +230,10 @@ export interface SummaryProps {
 
 export function Summary({ modeName, level, session, base, unlockedNow, maxLevel, optionLabel, showMixups = true, onAgain, onExit }: SummaryProps) {
   const right = session.filter((a) => a.correct).length;
+  const goal = useSettings((s) => s.dailyGoal);
+  const today = useLiveQuery(() => answeredToday(), []);
+  // This session is what carried you over the line.
+  const goalJustMet = today !== undefined && today >= goal && today - session.length < goal;
   const readiness = levelReadiness([...base, ...session].map((a) => a.correct));
 
   // "m6 heard as M6 (2)" — grouped, most frequent first.
@@ -246,6 +256,16 @@ export function Summary({ modeName, level, session, base, unlockedNow, maxLevel,
           <p className={styles.unlock} role="status">
             Level {unlockedNow} unlocked.
           </p>
+        )}
+
+        {goalJustMet ? (
+          <p className={styles.goalMet}>Daily goal reached: {today} answers today.</p>
+        ) : (
+          today !== undefined && (
+            <p className={styles.goalLine}>
+              {today >= goal ? `${today} answers today. Goal met.` : `${today} of ${goal} answers today. ${goal - today} to go.`}
+            </p>
+          )
         )}
 
         {showMixups && mixupList.length > 0 && (
