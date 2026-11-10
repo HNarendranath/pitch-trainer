@@ -1,0 +1,132 @@
+.ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  flex: none;
+}
+
+.ring:disabled {
+  cursor: default;
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.bands {
+  opacity: 0.38;
+  transition: opacity var(--dur) var(--ease-out);
+}
+
+.band {
+  transform-origin: 120px 120px;
+  transform-box: view-box;
+}
+
+.face {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 1;
+  transition: fill var(--dur) var(--ease-out);
+}
+
+.ring:active .face {
+  fill: var(--surface-raised);
+}
+
+/* Playing: the bands spin at different rates and directions, like a strobe
+   disc catching a pitch. */
+.ring[data-state='playing'] .bands {
+  opacity: 1;
+}
+.ring[data-state='playing'] .b1 {
+  animation: spin 2.4s linear infinite;
+}
+.ring[data-state='playing'] .b2 {
+  animation: spin 3.6s linear infinite reverse;
+}
+.ring[data-state='playing'] .b3 {
+  animation: spin 5.2s linear infinite;
+}
+
+.ring[data-state='correct'] .bands {
+  opacity: 1;
+}
+.ring[data-state='correct'] .face {
+  fill: color-mix(in oklab, var(--correct) 22%, var(--surface));
+}
+
+/* Wrong: bands go amber and jitter once, the way a strobe drifts when
+   a note is out of tune. */
+.ring[data-state='wrong'] .bands {
+  opacity: 1;
+  stroke: var(--wrong);
+  animation: drift 420ms var(--ease-out) 1;
+}
+.ring[data-state='wrong'] .face {
+  fill: color-mix(in oklab, var(--wrong) 18%, var(--surface));
+}
+
+.text {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  max-inline-size: 128px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.label {
+  font-size: var(--step-2);
+  font-weight: 650;
+  font-stretch: 112%;
+  line-height: 1.1;
+}
+
+.sublabel {
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-6deg);
+  }
+  65% {
+    transform: rotate(4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring[data-state='playing'] .band {
+    animation: none;
+  }
+  .ring[data-state='playing'] .bands {
+    animation: breathe 1.6s ease-in-out infinite !important;
+    animation-iteration-count: infinite !important;
+    animation-duration: 1.6s !important;
+  }
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.55;
+  }
+}

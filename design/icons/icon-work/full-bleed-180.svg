@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f211d"/>
+      <stop offset="1" stop-color="#1d1412"/>
+    </linearGradient>
+    <linearGradient id="abalone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4fc6b2"/>
+      <stop offset="1" stop-color="#8a8ff0"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" rx="6" fill="url(#wood)"/>
+  <g transform="translate(128 130) scale(0.82) translate(-128 -130)">
+    <path d="M66 62 Q46 92 66 122" fill="none" stroke="url(#abalone)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M190 62 Q210 92 190 122" fill="none" stroke="url(#abalone)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M100 50 V118 A28 28 0 0 0 156 118 V50" fill="none" stroke="#ecdfc4" stroke-width="24" stroke-linecap="round"/>
+    <rect x="116" y="140" width="24" height="70" rx="12" fill="#ecdfc4"/>
+  </g>
+</svg>

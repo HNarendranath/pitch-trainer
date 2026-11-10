@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dev-dist/
+coverage/
+.env
+.env.*
+*.local
+.claude/settings.local.json
+.vite/
+.playwright-mcp/
+*.log
+.DS_Store
+Thumbs.db
+design/icons/icon-work/*.png

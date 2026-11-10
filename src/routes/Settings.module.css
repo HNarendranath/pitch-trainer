@@ -1,0 +1,139 @@
+.page {
+  display: grid;
+  gap: var(--s6);
+}
+
+.h1 {
+  font-size: var(--step-4);
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.02em;
+  padding-block-start: var(--s2);
+}
+
+.group {
+  display: grid;
+  gap: var(--s3);
+}
+
+.h2 {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.body {
+  font-size: var(--step--1);
+  color: var(--text);
+  max-inline-size: 60ch;
+}
+
+.hint {
+  display: block;
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  min-block-size: 56px;
+  padding-block: var(--s2);
+  border-block-end: 1px solid color-mix(in oklab, var(--line) 60%, transparent);
+}
+
+.select {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding-inline: var(--s3);
+  min-inline-size: 5rem;
+}
+
+.switch {
+  appearance: none;
+  flex: none;
+  inline-size: 48px;
+  block-size: 28px;
+  min-block-size: 28px;
+  border-radius: 999px;
+  background: var(--line);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--dur-fast);
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-start: 3px;
+  inline-size: 22px;
+  block-size: 22px;
+  border-radius: 50%;
+  background: var(--text);
+  transition: translate var(--dur) var(--ease-out);
+}
+
+.switch:checked {
+  background: var(--accent);
+}
+
+.switch:checked::after {
+  translate: 20px 0;
+  background: var(--on-accent);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
+}
+
+.segment {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-block-size: var(--target);
+  border-radius: 9px;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.segment input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.segment:has(input:checked) {
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--line) 80%, transparent);
+}
+
+.segment:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.button {
+  justify-self: start;
+  min-block-size: 48px;
+  padding-inline: var(--s5);
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 650;
+}

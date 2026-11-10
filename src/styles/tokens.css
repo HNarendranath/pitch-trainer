@@ -1,0 +1,107 @@
+/*
+  Pitch Trainer design tokens.
+
+  Concept: the instrument itself. Rosewood and ebony (fingerboard) for the
+  ground, spruce (soundboard) for type, nickel (fret wire) for quiet detail,
+  and abalone (the inlay) as the one iridescent accent, reserved for the
+  strobe ring, the active state and correct answers. "Out of tune" amber
+  marks wrong answers instead of a red that would sit too close to the wood.
+*/
+:root {
+  color-scheme: dark light;
+
+  /* Palette */
+  --rosewood: #1d1412;
+  --ebony: #2a1e1b;
+  --ebony-raised: #352724;
+  --spruce: #ecdfc4;
+  --nickel: #a6998a;
+  --fret: #5a4a44;
+  --abalone-teal: #4fc6b2;
+  --abalone-violet: #8a8ff0;
+  --detune: #e9ab4a;
+
+  /* Roles */
+  --bg: var(--rosewood);
+  --surface: var(--ebony);
+  --surface-raised: var(--ebony-raised);
+  --text: var(--spruce);
+  --text-muted: var(--nickel);
+  --line: var(--fret);
+  --accent: var(--abalone-teal);
+  --accent-2: var(--abalone-violet);
+  --correct: var(--abalone-teal);
+  --wrong: var(--detune);
+  --on-accent: #10201d;
+  --focus: var(--abalone-violet);
+
+  /* Type: one family, Mona Sans, with width as the expressive axis. */
+  --font: 'Mona Sans Variable', 'Noto Music', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-music: 'Noto Music', 'Mona Sans Variable', serif;
+  /* Classical scale: 12 14 16 18 21 24 36 48 72 */
+  --step--2: 0.75rem;
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.125rem;
+  --step-2: 1.3125rem;
+  --step-3: 1.5rem;
+  --step-4: 2.25rem;
+  --step-5: 3rem;
+  --step-6: 4.5rem;
+
+  /* Space */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --gutter: 20px;
+
+  /* Shape: radius follows hierarchy, not one value everywhere. */
+  --r-key: 10px;
+  --r-sheet: 22px;
+
+  /* Touch */
+  --target: 44px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur: 220ms;
+
+  --tabbar-h: 64px;
+}
+
+/* Light: nickel-white body, rosewood ink. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg: #e8eaeb;
+    --surface: #f6f6f4;
+    --surface-raised: #ffffff;
+    --text: #241a17;
+    --text-muted: #625853;
+    --line: #c9c4bd;
+    --accent: #138571;
+    --accent-2: #4b53b8;
+    --correct: #138571;
+    --wrong: #a5650d;
+    --on-accent: #ffffff;
+    --focus: #4b53b8;
+  }
+}
+:root[data-theme='light'] {
+  --bg: #e8eaeb;
+  --surface: #f6f6f4;
+  --surface-raised: #ffffff;
+  --text: #241a17;
+  --text-muted: #625853;
+  --line: #c9c4bd;
+  --accent: #138571;
+  --accent-2: #4b53b8;
+  --correct: #138571;
+  --wrong: #a5650d;
+  --on-accent: #ffffff;
+  --focus: #4b53b8;
+}

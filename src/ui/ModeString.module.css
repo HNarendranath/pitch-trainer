@@ -1,0 +1,42 @@
+.string {
+  display: grid;
+  block-size: 14px;
+  border-inline-start: 3px solid var(--line); /* the nut */
+}
+
+.fret {
+  position: relative;
+  border-inline-end: 1.5px solid var(--line);
+}
+
+.fret::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 50%;
+  block-size: 1.5px;
+  translate: 0 -50%;
+  background: var(--line);
+}
+
+.fret[data-state='done']::before,
+.fret[data-state='current']::before {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  block-size: 2px;
+}
+
+.fret[data-state='current']::before {
+  inset-inline-end: 50%;
+}
+
+.inlay {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  inline-size: 8px;
+  block-size: 8px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--accent-2);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent-2) 25%, transparent);
+}

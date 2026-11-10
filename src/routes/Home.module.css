@@ -1,0 +1,111 @@
+.home {
+  display: grid;
+  gap: var(--s6);
+}
+
+.header {
+  display: grid;
+  gap: var(--s4);
+  padding-block-start: var(--s2);
+}
+
+/* The wordmark is set wide and heavy: Mona Sans' width axis is the
+   typographic voice of the app. */
+.wordmark {
+  font-size: var(--step-4);
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.today {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  color: var(--text-muted);
+  font-size: var(--step--1);
+}
+
+.today strong {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.goalRing {
+  inline-size: 28px;
+  block-size: 28px;
+  rotate: -90deg;
+  flex: none;
+}
+
+.goalTrack,
+.goalFill {
+  fill: none;
+  stroke-width: 5;
+}
+
+.goalTrack {
+  stroke: var(--line);
+}
+
+.goalFill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+}
+
+.groupTitle {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-block-end: var(--s2);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.list li + li {
+  border-block-start: 1px solid color-mix(in oklab, var(--line) 60%, transparent);
+}
+
+.row {
+  display: grid;
+  gap: 6px;
+  padding-block: var(--s4);
+  text-decoration: none;
+  border-radius: var(--r-key);
+}
+
+.row:active {
+  background: var(--surface);
+}
+
+.rowHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.rowName {
+  font-size: var(--step-2);
+  font-weight: 650;
+  font-stretch: 110%;
+  letter-spacing: -0.01em;
+}
+
+.rowLevel {
+  font-size: var(--step--2);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.rowBlurb {
+  font-size: var(--step--1);
+  color: var(--text-muted);
+  margin-block-end: var(--s2);
+}
