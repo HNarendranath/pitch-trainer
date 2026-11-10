@@ -122,7 +122,8 @@ function LevelSetup({ def, name, onStart, children }: LevelSetupProps) {
   const [chosen, setChosen] = useState<number | null>(null);
 
   useEffect(() => {
-    if (progress && chosen === null) setChosen(Math.min(progress.lastLevel, def.levels.length));
+    // Functional update: a tap that lands just before this runs must win.
+    if (progress && chosen === null) setChosen((c) => c ?? Math.min(progress.lastLevel, def.levels.length));
   }, [progress, chosen, def.levels.length]);
 
   const unlocked = progress?.unlocked ?? 1;

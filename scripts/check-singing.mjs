@@ -111,7 +111,13 @@ async function sweep(page, cents = 0, snapOff) {
   await page.evaluate(() => window.__mic(220));
   await page.waitForTimeout(500);
   await shot(page, 'sing-blind');
-  await page.waitForFunction(() => ['correct', 'wrong'].includes(document.querySelector('button[data-state]')?.dataset.state ?? ''), null, { timeout: 8000 });
+  const judged = await page
+    .waitForFunction(() => ['correct', 'wrong'].includes(document.querySelector('button[data-state]')?.dataset.state ?? ''), null, { timeout: 8000 })
+    .then(() => true, () => false);
+  if (!judged) {
+    result.blindTimeout = { prompt, ring: await ring(page).innerText(), state: await ring(page).getAttribute('data-state'), body: (await page.locator('body').innerText()).slice(0, 300) };
+    if (out) await shot(page, 'sing-blind-timeout');
+  }
   const state = await ring(page).getAttribute('data-state');
   const reveal = await page.getByRole('status').first().innerText();
   const askedA = /Sing an A\./.test(prompt);
