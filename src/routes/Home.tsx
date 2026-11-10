@@ -4,7 +4,7 @@ import { ModeString } from '../ui/ModeString';
 import { useSettings } from '../state/settings';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { allProgress, answeredToday, currentStreak } from '../db/queries';
-import { EXERCISES } from '../exercises/registry';
+import { isPlayable } from '../exercises/registry';
 import styles from './Home.module.css';
 
 /** `level` 0 means the mode isn't playable yet. */
@@ -29,7 +29,7 @@ export function Home() {
   const streak = useLiveQuery(() => currentStreak(), []) ?? 0;
   const progress = useLiveQuery(() => allProgress(), []);
   const pct = Math.min(1, today / goal);
-  const levelFor = (m: ModeMeta) => (EXERCISES[m.id] ? (progress?.get(m.id)?.unlocked ?? 1) : 0);
+  const levelFor = (m: ModeMeta) => (isPlayable(m.id) ? (progress?.get(m.id)?.unlocked ?? 1) : 0);
 
   const listen = MODES.filter((m) => m.group === 'listen');
   const sing = MODES.filter((m) => m.group === 'sing');

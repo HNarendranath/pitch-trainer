@@ -1,0 +1,51 @@
+/* Pitch matching reuses the practice page, with the meter under the ring
+   instead of answer keys. */
+.page {
+  grid-template-rows: auto auto 1fr auto;
+}
+
+.feedback {
+  display: grid;
+  justify-items: center;
+  inline-size: min(100%, 300px);
+  min-block-size: 96px;
+}
+
+.meterWrap {
+  display: grid;
+  justify-items: center;
+  inline-size: 100%;
+}
+
+.meterWrap[data-hidden] {
+  visibility: hidden;
+}
+
+.blindNote {
+  align-self: start;
+  padding-block-start: var(--s3);
+  font-weight: 650;
+  font-stretch: 108%;
+  color: var(--text-muted);
+}
+
+/* ---------- Mic primer and blocked screens ---------- */
+
+.primerArt {
+  justify-self: center;
+  margin-block-end: var(--s4);
+}
+
+.points {
+  margin: var(--s2) 0 0;
+  padding-inline-start: 1.2em;
+  display: grid;
+  gap: var(--s2);
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+.points strong {
+  color: var(--text);
+  font-weight: 650;
+}

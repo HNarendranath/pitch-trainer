@@ -71,6 +71,22 @@
   fill: color-mix(in oklab, var(--wrong) 18%, var(--surface));
 }
 
+/* Tuner mode: bands light up while a voice is heard; the face warms when in tune. */
+.ring[data-voice] .bands {
+  opacity: 1;
+}
+.ring[data-in-tune] .face {
+  fill: color-mix(in oklab, var(--correct) 14%, var(--surface));
+}
+
+.hold {
+  fill: none;
+  stroke: var(--correct);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 80ms linear;
+}
+
 .text {
   position: relative;
   display: grid;

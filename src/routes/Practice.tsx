@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { modeById } from '../exercises/modes';
@@ -7,6 +7,10 @@ import { levelOf, type ExerciseDef } from '../exercises/types';
 import { getProgress, levelAttempts } from '../db/queries';
 import { levelReadiness, UNLOCK_WINDOW } from '../srs/mastery';
 import { PracticeRunner } from '../ui/PracticeRunner';
+import { SingRunner } from '../ui/SingRunner';
+import { singing, SING_LEVELS, VOICE_RANGES, type VoiceRange } from '../exercises/singing';
+import { useSettings } from '../state/settings';
+import { noteName, prettyAccidentals } from '../theory/notes';
 import { CloseIcon } from '../ui/icons';
 import styles from './Practice.module.css';
 
@@ -32,21 +36,13 @@ function PracticeMode({ modeId }: { modeId: string }) {
     );
   }
 
+  if (modeId === 'singing') return <SingPractice />;
+
   if (!def) {
     return (
-      <div className={`${styles.page} ${styles.summary}`}>
-        <div className={styles.summaryBody}>
-          <h1 className={styles.setupTitle}>{mode.name}</h1>
-          <p className={styles.summaryText}>This exercise is being built. Intervals is ready to practise now.</p>
-        </div>
-        <div className={styles.summaryActions}>
-          <Link to="/practice/intervals" className={styles.primary}>
-            Practise intervals
-          </Link>
-          <Link to="/" className={styles.secondary}>
-            Back
-          </Link>
-        </div>
+      <div className={styles.page}>
+        <p>That exercise doesn't exist.</p>
+        <Link to="/">Back to practice</Link>
       </div>
     );
   }
@@ -66,7 +62,55 @@ function PracticeMode({ modeId }: { modeId: string }) {
   return <LevelSetup def={def} name={mode.name} onStart={(level) => setSession({ level, key: 1 })} />;
 }
 
-function LevelSetup({ def, name, onStart }: { def: ExerciseDef; name: string; onStart: (level: number) => void }) {
+function SingPractice() {
+  const navigate = useNavigate();
+  const [session, setSession] = useState<{ level: number; key: number } | null>(null);
+  const { voice, setVoice } = useSettings();
+
+  if (session) {
+    return (
+      <SingRunner
+        key={session.key}
+        level={SING_LEVELS[session.level - 1] ?? SING_LEVELS[0]!}
+        onExit={() => navigate('/')}
+        onAgain={(level) => setSession({ level, key: session.key + 1 })}
+      />
+    );
+  }
+
+  return (
+    <LevelSetup def={singing} name="Pitch matching" onStart={(level) => setSession({ level, key: 1 })}>
+      <div className={styles.voice}>
+        <span className={styles.voiceLabel} id="voice-h">
+          Your voice
+        </span>
+        <div className={styles.segmented} role="radiogroup" aria-labelledby="voice-h">
+          {(Object.keys(VOICE_RANGES) as VoiceRange[]).map((v) => (
+            <label key={v} className={styles.segment}>
+              <input type="radio" name="voice" value={v} checked={voice === v} onChange={() => setVoice(v)} />
+              <span>
+                {VOICE_RANGES[v].name}
+                <span className={styles.segmentHint}>
+                  {prettyAccidentals(noteName(VOICE_RANGES[v].low))}–{prettyAccidentals(noteName(VOICE_RANGES[v].high))}
+                </span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </LevelSetup>
+  );
+}
+
+interface LevelSetupProps {
+  def: Pick<ExerciseDef, 'id' | 'levels'>;
+  name: string;
+  onStart: (level: number) => void;
+  /** Mode-specific options shown above the levels. */
+  children?: ReactNode;
+}
+
+function LevelSetup({ def, name, onStart, children }: LevelSetupProps) {
   const progress = useLiveQuery(() => getProgress(def.id), [def.id]);
   const accuracy = useLiveQuery(
     async () =>
@@ -95,6 +139,8 @@ function LevelSetup({ def, name, onStart }: { def: ExerciseDef; name: string; on
         <h1 className={styles.setupTitle}>{name}</h1>
         <p className={styles.setupLead}>Pick a level. Reach 85% over 20 answers to unlock the next.</p>
       </div>
+
+      {children}
 
       <div className={styles.levels} role="radiogroup" aria-label="Level">
         {def.levels.map((l, i) => {

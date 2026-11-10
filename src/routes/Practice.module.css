@@ -402,3 +402,63 @@
   padding-block: var(--s3) max(0px, env(safe-area-inset-bottom, 0px));
   background: linear-gradient(to top, var(--bg) 70%, transparent);
 }
+
+/* ---------- Voice range (pitch matching setup) ---------- */
+
+.voice {
+  display: grid;
+  gap: var(--s2);
+}
+
+.voiceLabel {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
+}
+
+.segment {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-block-size: 52px;
+  border-radius: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+}
+
+.segment input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.segment:has(input:checked) {
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--line) 80%, transparent);
+}
+
+.segment:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.segmentHint {
+  display: block;
+  font-size: var(--step--2);
+  font-weight: 500;
+  color: var(--text-muted);
+}

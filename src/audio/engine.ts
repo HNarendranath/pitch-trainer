@@ -22,6 +22,14 @@ export function setAudioSession(type: AudioSessionType): void {
 }
 
 let unlocked = false;
+/** 'play-and-record' while the mic is open, so iOS keeps both running. */
+let sessionType: AudioSessionType = 'playback';
+
+/** Switch the iOS audio session for mic use (pitch matching) and back. */
+export function setMicSession(on: boolean): void {
+  sessionType = on ? 'play-and-record' : 'playback';
+  setAudioSession(sessionType);
+}
 
 /**
  * Must be called from a user gesture (tap) before the first sound:
@@ -29,8 +37,8 @@ let unlocked = false;
  */
 export async function unlockAudio(): Promise<void> {
   // Set the session *before* resuming so iOS routes audio as media playback,
-  // which is not muted by the silent switch.
-  setAudioSession('playback');
+  // which is not muted by the silent switch (or as play-and-record with the mic on).
+  setAudioSession(sessionType);
   if (Tone.getContext().state !== 'running') await Tone.start();
   if (!unlocked) {
     unlocked = true;

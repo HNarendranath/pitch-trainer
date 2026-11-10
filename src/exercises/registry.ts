@@ -7,7 +7,7 @@ import { scaleDegrees } from './scaleDegrees';
 import { scales } from './scales';
 import { progressions } from './progressions';
 
-/** Modes that are playable. The rest show a "coming soon" screen. */
+/** Listening modes, all driven by PracticeRunner. Pitch matching has its own runner. */
 export const EXERCISES: Partial<Record<ModeId, ExerciseDef>> = {
   intervals,
   chords,
@@ -19,4 +19,8 @@ export const EXERCISES: Partial<Record<ModeId, ExerciseDef>> = {
 
 export function exerciseFor(id: string): ExerciseDef | undefined {
   return EXERCISES[id as ModeId];
+}
+
+export function isPlayable(id: ModeId): boolean {
+  return id === 'singing' || EXERCISES[id] !== undefined;
 }

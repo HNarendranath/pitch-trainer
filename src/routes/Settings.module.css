@@ -88,6 +88,38 @@
   background: var(--on-accent);
 }
 
+.radio {
+  appearance: none;
+  flex: none;
+  inline-size: 24px;
+  block-size: 24px;
+  min-block-size: 24px;
+  margin: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.radio:checked {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.radio:checked::after {
+  content: '';
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 50%;
+  background: var(--on-accent);
+}
+
+.radio:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .segmented {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

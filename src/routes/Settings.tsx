@@ -1,9 +1,11 @@
-import { useSettings, type ThemePref } from '../state/settings';
+import { useSettings, type InstrumentChoice, type ThemePref } from '../state/settings';
 import { useInstall } from '../ui/useInstall';
 import { isIOS, isStandalone } from '../pwa';
 import { supportsAudioSession } from '../audio/engine';
 import { INSTRUMENT_IDS, INSTRUMENT_META } from '../theory/instruments';
 import styles from './Settings.module.css';
+
+const INSTRUMENT_CHOICES: InstrumentChoice[] = [...INSTRUMENT_IDS, 'random'];
 
 const THEMES: { value: ThemePref; label: string }[] = [
   { value: 'system', label: 'Match phone' },
@@ -69,20 +71,18 @@ export function Settings() {
         <h2 id="inst-h" className={styles.h2}>
           Instruments
         </h2>
-        <p className={styles.hint}>Each question is played on one of these. Mixing timbres trains your ear for real music. Extra instruments download the first time you use them.</p>
-        {INSTRUMENT_IDS.map((id) => {
-          const on = s.instruments.includes(id);
-          const last = on && s.instruments.length === 1;
-          return (
+        <p className={styles.hint}>Questions are played on this. Random mixes timbres, which trains your ear for real music. Extra instruments download the first time you use them.</p>
+        <div role="radiogroup" aria-labelledby="inst-h">
+          {INSTRUMENT_CHOICES.map((id) => (
             <label key={id} className={styles.row}>
               <span>
-                {INSTRUMENT_META[id].name}
-                {last && <span className={styles.hint}>At least one instrument stays on</span>}
+                {id === 'random' ? 'Random' : INSTRUMENT_META[id].name}
+                {id === 'random' && <span className={styles.hint}>A different instrument each question</span>}
               </span>
-              <input type="checkbox" role="switch" className={styles.switch} checked={on} disabled={last} onChange={() => s.toggleInstrument(id)} />
+              <input type="radio" name="instrument" className={styles.radio} checked={s.instrument === id} onChange={() => s.setInstrument(id)} />
             </label>
-          );
-        })}
+          ))}
+        </div>
       </section>
 
       {!standalone && (

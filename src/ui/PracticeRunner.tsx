@@ -9,7 +9,7 @@ import { preloadInstrument } from '../audio/instruments';
 import { instrumentsFor } from '../theory/instruments';
 import { pick } from '../theory/notes';
 import { sequenceNotes } from '../theory/sequence';
-import { useSettings } from '../state/settings';
+import { allowedInstruments, useSettings } from '../state/settings';
 import { StrobeRing, type RingState } from './StrobeRing';
 import { CloseIcon } from './icons';
 import { MusicText } from './MusicText';
@@ -25,14 +25,14 @@ interface Props {
   onAgain: (level: number) => void;
 }
 
-interface SessionAttempt extends AttemptLite {
+export interface SessionAttempt extends AttemptLite {
   level: number;
 }
 
 export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
   const mode = modeById(def.id)!;
   const options = useMemo(() => def.options(level), [def, level]);
-  const enabledInstruments = useSettings((s) => s.instruments);
+  const instrumentChoice = useSettings((s) => s.instrument);
   const columns = def.columns ?? (options.length <= 6 ? 3 : 4);
   const compact = options.length > 12;
 
@@ -52,7 +52,7 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
 
   /** Questions that don't name an instrument get one of yours that can play every note. */
   function withInstrument(q: Question): Question {
-    const instrument = q.instrument ?? pick(instrumentsFor(sequenceNotes(q.sequence), enabledInstruments));
+    const instrument = q.instrument ?? pick(instrumentsFor(sequenceNotes(q.sequence), allowedInstruments(instrumentChoice)));
     preloadInstrument(instrument);
     return { ...q, instrument };
   }
@@ -60,7 +60,6 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
   // Load this level's history once, then ask the first question.
   useEffect(() => {
     let alive = true;
-    enabledInstruments.forEach(preloadInstrument);
     void setLastLevel(def.id, level.n);
     void levelAttempts(def.id, level.n).then((rows) => {
       if (!alive) return;
@@ -209,7 +208,7 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
   );
 }
 
-interface SummaryProps {
+export interface SummaryProps {
   modeName: string;
   level: Level;
   session: SessionAttempt[];
@@ -217,11 +216,13 @@ interface SummaryProps {
   unlockedNow?: number;
   maxLevel: number;
   optionLabel: (id: string) => string;
+  /** Off for pitch matching, where a miss has no "heard as". */
+  showMixups?: boolean;
   onAgain: (level: number) => void;
   onExit: () => void;
 }
 
-function Summary({ modeName, level, session, base, unlockedNow, maxLevel, optionLabel, onAgain, onExit }: SummaryProps) {
+export function Summary({ modeName, level, session, base, unlockedNow, maxLevel, optionLabel, showMixups = true, onAgain, onExit }: SummaryProps) {
   const right = session.filter((a) => a.correct).length;
   const readiness = levelReadiness([...base, ...session].map((a) => a.correct));
 
@@ -247,7 +248,7 @@ function Summary({ modeName, level, session, base, unlockedNow, maxLevel, option
           </p>
         )}
 
-        {mixupList.length > 0 && (
+        {showMixups && mixupList.length > 0 && (
           <div className={styles.mixups}>
             <h2 className={styles.mixupsTitle}>Mixed up</h2>
             <ul>
