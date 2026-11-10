@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { modeById } from '../exercises/modes';
 import { exerciseFor } from '../exercises/registry';
@@ -20,12 +20,19 @@ export function Practice() {
   return <PracticeMode key={modeId} modeId={modeId} />;
 }
 
+/** `?level=N` (from Home's Continue card) skips setup and starts that level. */
+function useStartLevel(max: number): { level: number; key: number } | null {
+  const [params] = useSearchParams();
+  const n = Number(params.get('level'));
+  return Number.isInteger(n) && n >= 1 && n <= max ? { level: n, key: 1 } : null;
+}
+
 function PracticeMode({ modeId }: { modeId: string }) {
   const navigate = useNavigate();
   const mode = modeById(modeId);
   const def = exerciseFor(modeId);
   // A new key per session restarts the runner cleanly.
-  const [session, setSession] = useState<{ level: number; key: number } | null>(null);
+  const [session, setSession] = useState<{ level: number; key: number } | null>(useStartLevel(def?.levels.length ?? 0));
 
   if (!mode) {
     return (
@@ -64,7 +71,7 @@ function PracticeMode({ modeId }: { modeId: string }) {
 
 function SingPractice() {
   const navigate = useNavigate();
-  const [session, setSession] = useState<{ level: number; key: number } | null>(null);
+  const [session, setSession] = useState<{ level: number; key: number } | null>(useStartLevel(SING_LEVELS.length));
   const { voice, setVoice } = useSettings();
 
   if (session) {
@@ -147,6 +154,8 @@ function LevelSetup({ def, name, onStart, children }: LevelSetupProps) {
         {def.levels.map((l, i) => {
           const r = accuracy?.[i];
           const ahead = l.n > unlocked;
+          // Say "ahead of your level" once, on the first locked level; the dashed numbers mark the rest.
+          const firstAhead = l.n === unlocked + 1;
           return (
             <label key={l.n} className={styles.levelRow} data-ahead={ahead || undefined}>
               <input type="radio" name="level" value={l.n} checked={chosen === l.n} onChange={() => setChosen(l.n)} />
@@ -159,9 +168,11 @@ function LevelSetup({ def, name, onStart, children }: LevelSetupProps) {
                 <span className={styles.levelMeta}>
                   {r && r.counted > 0
                     ? `${Math.round(r.accuracy * 100)}% over your last ${r.counted}`
-                    : ahead
-                      ? 'Ahead of your level. Try it anyway if you like.'
-                      : 'Not practised yet'}
+                    : firstAhead
+                      ? 'From here on is ahead of your level. Try any of them if you like.'
+                      : ahead
+                        ? null
+                        : 'Not practised yet'}
                 </span>
               </span>
             </label>

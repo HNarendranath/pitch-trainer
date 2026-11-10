@@ -48,7 +48,7 @@ async function open(deny = false) {
 }
 
 const ring = (page) => page.locator('button[data-state]').first();
-const waitSinging = (page) => page.waitForSelector('button[aria-label="Hear the note again"], button[aria-label="Hear the answer"]', { timeout: 20000 });
+const waitSinging = (page) => page.waitForSelector('[data-stage="singing"], [data-stage="matched"], [data-stage="missed"]', { timeout: 20000 });
 
 /** Sweep through the semitones until the app locks on; returns the semitone used. */
 async function sweep(page, cents = 0, snapOff) {
@@ -82,7 +82,7 @@ async function sweep(page, cents = 0, snapOff) {
     const label = await ring(page).locator('span').first().innerText();
     if (i === 1) await shot(page, 'sing-matched');
     matches.push({ k, label: label.split('\n')[0], pcOk: k >= 0 && pcOf(label) === (9 + k) % 12 });
-    await page.waitForSelector('button[aria-label="Hear the note again"]', { timeout: 20000 });
+    await page.waitForSelector('[data-stage="singing"]', { timeout: 20000 });
   }
   // Mid-hold screenshot: in tune, 12 cents sharp.
   result.matches = matches;
@@ -93,7 +93,7 @@ async function sweep(page, cents = 0, snapOff) {
   // Relaunch (iPhone forgets the permission): no explainer, straight to Start.
   await page.reload();
   await page.getByRole('button', { name: /^Start level/ }).click();
-  await page.getByRole('button', { name: 'Start' }).waitFor({ timeout: 5000 });
+  await page.getByRole('button', { name: /^Start Tap to begin/ }).waitFor({ timeout: 5000 });
   result.relaunchSkipsPrimer = !(await page.getByRole('button', { name: 'Turn on microphone' }).isVisible());
   await page.close();
 }
@@ -106,7 +106,7 @@ async function sweep(page, cents = 0, snapOff) {
   await page.locator('input[name=level][value="5"]').dispatchEvent('click');
   await page.getByRole('button', { name: /^Start level/ }).click();
   await page.getByRole('button', { name: 'Turn on microphone' }).click();
-  await page.waitForSelector('button[aria-label="Hear the answer"], button[data-state]');
+  await page.waitForSelector('[data-stage="singing"], [data-stage="matched"], [data-stage="missed"]');
   const prompt = await page.getByRole('status').first().innerText();
   await page.evaluate(() => window.__mic(220));
   await page.waitForTimeout(500);

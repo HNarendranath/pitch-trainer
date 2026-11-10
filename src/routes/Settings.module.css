@@ -79,6 +79,11 @@
   transition: translate var(--dur) var(--ease-out);
 }
 
+/* Off: an outline in the muted ink so the control shows at 3:1 or better. */
+.switch:not(:checked) {
+  box-shadow: inset 0 0 0 1.5px var(--text-muted);
+}
+
 .switch:checked {
   background: var(--accent);
 }
@@ -96,7 +101,7 @@
   min-block-size: 24px;
   margin: 0;
   border-radius: 50%;
-  border: 1.5px solid var(--line);
+  border: 1.5px solid var(--text-muted);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -152,7 +157,7 @@
 .segment:has(input:checked) {
   background: var(--surface-raised);
   color: var(--text);
-  box-shadow: 0 1px 0 color-mix(in oklab, var(--line) 80%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--text-muted);
 }
 
 .segment:has(input:focus-visible) {

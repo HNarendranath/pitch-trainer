@@ -461,7 +461,7 @@
 .segment:has(input:checked) {
   background: var(--surface-raised);
   color: var(--text);
-  box-shadow: 0 1px 0 color-mix(in oklab, var(--line) 80%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--text-muted);
 }
 
 .segment:has(input:focus-visible) {

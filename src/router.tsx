@@ -17,5 +17,13 @@ export const router = createBrowserRouter([
       { path: 'settings', element: <Settings /> },
     ],
   },
-  { path: 'practice/:mode', element: <Practice /> },
+  {
+    path: 'practice/:mode',
+    // Practice screens sit outside the tab shell, so they get their own landmark.
+    element: (
+      <main>
+        <Practice />
+      </main>
+    ),
+  },
 ]);

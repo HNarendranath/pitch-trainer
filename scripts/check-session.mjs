@@ -29,7 +29,7 @@ for (let i = 0; i < 20; i++) {
 }
 await page.getByText(/right in intervals, level 1/).waitFor();
 if (out) await page.screenshot({ path: `${out}/session-summary.png` });
-const summary = await page.locator('main, body').innerText();
+const summary = await page.locator('body').innerText();
 await page.getByRole('button', { name: 'Done' }).click();
 await page.waitForTimeout(500);
 const home = await page.locator('body').innerText();

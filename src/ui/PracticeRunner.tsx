@@ -180,7 +180,6 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
           label={ringLabel}
           sublabel={ringSub}
           onPress={() => q && void play(q, { replay: heard })}
-          ariaLabel={heard ? 'Replay' : 'Play'}
           disabled={!q}
           size={compact ? 184 : 232}
         />
@@ -244,6 +243,7 @@ export function Summary({ modeName, level, session, base, unlockedNow, maxLevel,
   return (
     <div className={`${styles.page} ${styles.summary}`}>
       <div className={styles.summaryBody}>
+        <h1 className="sr-only">{modeName}: session finished</h1>
         <p className={styles.score}>
           {right}
           <span> / {session.length}</span>

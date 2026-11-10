@@ -10,8 +10,6 @@ interface Props {
   sublabel?: string;
   onPress?: () => void;
   size?: number;
-  /** Accessible name for the button. */
-  ariaLabel?: string;
   disabled?: boolean;
   /**
    * Tuner mode (pitch matching). Cents off the target: the bands drift
@@ -34,7 +32,7 @@ const BAND_SPEEDS = [1, 0.62, 0.38];
  * that spin while sound plays and settle when it stops. It is the listen /
  * replay button in every exercise, and the tuner when you sing.
  */
-export function StrobeRing({ state, label, sublabel, onPress, size = 232, ariaLabel, disabled, cents, tolerance = 0, progress }: Props) {
+export function StrobeRing({ state, label, sublabel, onPress, size = 232, disabled, cents, tolerance = 0, progress }: Props) {
   const gid = useId();
   const bandsRef = useRef<SVGGElement>(null);
   const centsRef = useRef(cents);
@@ -107,11 +105,11 @@ export function StrobeRing({ state, label, sublabel, onPress, size = 232, ariaLa
       data-voice={voice || undefined}
       data-in-tune={inTune || undefined}
       onClick={onPress}
-      aria-label={ariaLabel ?? label}
       disabled={disabled}
       style={{ inlineSize: size, blockSize: size }}
     >
       {content}
+      {/* The visible label and hint are the button's name, so what people see is what voice control hears. */}
       <span className={styles.text}>
         <span className={styles.label} data-long={label.length > 7 || undefined}>
           <MusicText>{label}</MusicText>

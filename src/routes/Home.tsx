@@ -3,9 +3,16 @@ import { MODES, type ModeMeta } from '../exercises/modes';
 import { ModeString } from '../ui/ModeString';
 import { useSettings } from '../state/settings';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { allProgress, answeredToday, currentStreak } from '../db/queries';
+import { allProgress, answeredToday, currentStreak, lastPractised } from '../db/queries';
 import { isPlayable } from '../exercises/registry';
+import { exerciseFor } from '../exercises/registry';
+import { SING_LEVELS } from '../exercises/singing';
 import styles from './Home.module.css';
+
+function levelName(mode: ModeMeta['id'], n: number): string {
+  const levels = mode === 'singing' ? SING_LEVELS : exerciseFor(mode)?.levels;
+  return levels?.[n - 1]?.name ?? '';
+}
 
 /** `level` 0 means the mode isn't playable yet. */
 function ModeRow({ mode, level }: { mode: ModeMeta; level: number }) {
@@ -28,6 +35,8 @@ export function Home() {
   const today = useLiveQuery(() => answeredToday(), []) ?? 0;
   const streak = useLiveQuery(() => currentStreak(), []) ?? 0;
   const progress = useLiveQuery(() => allProgress(), []);
+  const last = useLiveQuery(() => lastPractised(), []);
+  const lastMode = last ? MODES.find((m) => m.id === last.mode) : undefined;
   const pct = Math.min(1, today / goal);
   const levelFor = (m: ModeMeta) => (isPlayable(m.id) ? (progress?.get(m.id)?.unlocked ?? 1) : 0);
 
@@ -52,6 +61,19 @@ export function Home() {
           </p>
         </div>
       </header>
+
+      {last && lastMode && (
+        <Link to={`/practice/${last.mode}?level=${last.level}`} className={styles.continue}>
+          <span className={styles.continueKicker}>Continue</span>
+          <span className={styles.continueName}>{lastMode.name}</span>
+          <span className={styles.continueMeta}>
+            Level {last.level}: {levelName(last.mode, last.level)}
+          </span>
+          <span className={styles.continueArrow} aria-hidden="true">
+            →
+          </span>
+        </Link>
+      )}
 
       <section aria-labelledby="listen-h">
         <h2 id="listen-h" className={styles.groupTitle}>

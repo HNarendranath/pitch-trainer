@@ -279,7 +279,7 @@ export function SingRunner({ level, onExit, onAgain }: Props) {
               : undefined;
 
   return (
-    <div className={`${styles.page} ${sing.page}`}>
+    <div className={`${styles.page} ${sing.page}`} data-stage={stage}>
       <header className={styles.top}>
         <button type="button" onClick={onExit} className={styles.close} aria-label="End session">
           <CloseIcon aria-hidden="true" />
@@ -302,7 +302,6 @@ export function SingRunner({ level, onExit, onAgain }: Props) {
           label={ringLabel}
           sublabel={ringSub}
           onPress={pressRing}
-          ariaLabel={stage === 'ready' ? 'Start' : stage === 'singing' ? 'Hear the note again' : answered ? 'Hear the answer' : 'Playing'}
           cents={stage === 'singing' && !blind ? cents : undefined}
           tolerance={q?.tolerance}
           progress={stage === 'singing' || stage === 'matched' ? progress : undefined}

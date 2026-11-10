@@ -121,3 +121,10 @@ export async function modeAttempts(mode: ModeId): Promise<Attempt[]> {
 export async function attemptTimesSince(since: number): Promise<number[]> {
   return (await db.attempts.where('ts').aboveOrEqual(since).keys()) as number[];
 }
+
+/** The exercise answered most recently, at the level last chosen for it. */
+export async function lastPractised(): Promise<{ mode: ModeId; level: number; ts: number } | null> {
+  const last = await db.attempts.orderBy('ts').last();
+  if (!last) return null;
+  return { mode: last.mode, level: (await getProgress(last.mode)).lastLevel, ts: last.ts };
+}
