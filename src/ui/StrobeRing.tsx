@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import styles from './StrobeRing.module.css';
+import { MusicText } from './MusicText';
 
 export type RingState = 'idle' | 'playing' | 'correct' | 'wrong';
 
@@ -50,7 +51,9 @@ export function StrobeRing({ state, label, sublabel, onPress, size = 232, ariaLa
     >
       {content}
       <span className={styles.text}>
-        <span className={styles.label}>{label}</span>
+        <span className={styles.label} data-long={label.length > 7 || undefined}>
+          <MusicText>{label}</MusicText>
+        </span>
         {sublabel && <span className={styles.sublabel}>{sublabel}</span>}
       </span>
     </button>

@@ -42,6 +42,8 @@ export interface ExerciseDef {
   /** Answer keys for a level, in display order. */
   options(level: Level): AnswerOption[];
   generate(itemId: string, level: Level, rand?: Rand): Question;
+  /** Answer grid columns; defaults to 3 for up to six keys, else 4. Long labels want 2. */
+  columns?: number;
 }
 
 export function levelOf(def: ExerciseDef, n: number): Level {

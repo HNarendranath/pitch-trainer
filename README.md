@@ -24,3 +24,4 @@ Vite, React, TypeScript, Tone.js (audio), tonal (music theory), pitchy (pitch de
 ## Credits
 
 Piano samples: Salamander Grand Piano by Alexander Holm, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+Guitar, strings, organ and flute samples: [tonejs-instruments](https://github.com/nbrosowsky/tonejs-instruments) by Nicholaus Brosowsky, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).

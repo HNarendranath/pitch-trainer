@@ -11,6 +11,11 @@ export interface NoteEvent {
   dur: number;
   /** 0–1 loudness. */
   velocity?: number;
+  /**
+   * A short burst of soft noise instead of notes. Used before perfect-pitch
+   * questions to wipe out the previous note, so it can't be used as a reference.
+   */
+  noise?: boolean;
 }
 
 export type Sequence = NoteEvent[];
@@ -42,4 +47,14 @@ export function concat(...parts: Sequence[]): Sequence {
     offset += sequenceLength(part) + 0.25;
   }
   return out;
+}
+
+/** Noise burst, then a pause; prepend to a sequence with concat(). */
+export function noiseReset(dur = 0.7): Sequence {
+  return [{ notes: [], at: 0, dur, noise: true }];
+}
+
+/** Every pitch in a sequence (for range and instrument checks). */
+export function sequenceNotes(seq: Sequence): Midi[] {
+  return seq.flatMap((e) => e.notes);
 }

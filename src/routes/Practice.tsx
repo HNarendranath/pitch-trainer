@@ -12,6 +12,11 @@ import styles from './Practice.module.css';
 
 export function Practice() {
   const { mode: modeId = '' } = useParams();
+  // Keyed by mode so switching exercises never carries a session over.
+  return <PracticeMode key={modeId} modeId={modeId} />;
+}
+
+function PracticeMode({ modeId }: { modeId: string }) {
   const navigate = useNavigate();
   const mode = modeById(modeId);
   const def = exerciseFor(modeId);

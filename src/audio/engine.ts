@@ -63,10 +63,13 @@ export interface PlayOptions {
    * true: cut off whatever is playing (e.g. moving to the next question).
    */
   interrupt?: boolean;
+  /** Leave out noise bursts (used for replays, where the reset isn't needed). */
+  skipNoise?: boolean;
 }
 
 /** Play a sequence; resolves when it has finished sounding (or was stopped). */
-export function playSequence(seq: Sequence, { instrument = 'piano', interrupt = false }: PlayOptions = {}): Promise<void> {
+export function playSequence(input: Sequence, { instrument = 'piano', interrupt = false, skipNoise = false }: PlayOptions = {}): Promise<void> {
+  const seq = skipNoise ? withoutNoise(input) : input;
   if (!interrupt) {
     if (current) return current.done;
     if (starting) return starting;
@@ -82,6 +85,11 @@ export function playSequence(seq: Sequence, { instrument = 'piano', interrupt = 
     // that stopAll() can cancel notes that haven't started yet.
     const transport = Tone.getTransport();
     for (const ev of seq) {
+      if (ev.noise) {
+        const burst = getNoise();
+        transport.schedule((time) => burst.triggerAttackRelease(ev.dur, time), ev.at);
+        continue;
+      }
       const freqs = ev.notes.map((n) => midiToFreq(n));
       transport.schedule((time) => sampler.triggerAttackRelease(freqs, ev.dur, time, ev.velocity ?? 0.8), ev.at);
     }
@@ -105,6 +113,23 @@ export function playSequence(seq: Sequence, { instrument = 'piano', interrupt = 
     if (starting === run) starting = undefined;
   });
   return run;
+}
+
+let noise: Tone.NoiseSynth | undefined;
+function getNoise(): Tone.NoiseSynth {
+  noise ??= new Tone.NoiseSynth({
+    noise: { type: 'pink' },
+    envelope: { attack: 0.05, decay: 0.1, sustain: 0.6, release: 0.25 },
+    volume: -26,
+  }).toDestination();
+  return noise;
+}
+
+/** Drop noise events and shift the rest so playback starts straight away. */
+function withoutNoise(seq: Sequence): Sequence {
+  const notes = seq.filter((e) => !e.noise);
+  const start = Math.min(...notes.map((e) => e.at));
+  return Number.isFinite(start) ? notes.map((e) => ({ ...e, at: e.at - start })) : notes;
 }
 
 function stopTransport(): void {

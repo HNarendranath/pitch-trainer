@@ -2,6 +2,7 @@ import { useSettings, type ThemePref } from '../state/settings';
 import { useInstall } from '../ui/useInstall';
 import { isIOS, isStandalone } from '../pwa';
 import { supportsAudioSession } from '../audio/engine';
+import { INSTRUMENT_IDS, INSTRUMENT_META } from '../theory/instruments';
 import styles from './Settings.module.css';
 
 const THEMES: { value: ThemePref; label: string }[] = [
@@ -64,6 +65,26 @@ export function Settings() {
         </label>
       </section>
 
+      <section className={styles.group} aria-labelledby="inst-h">
+        <h2 id="inst-h" className={styles.h2}>
+          Instruments
+        </h2>
+        <p className={styles.hint}>Each question is played on one of these. Mixing timbres trains your ear for real music. Extra instruments download the first time you use them.</p>
+        {INSTRUMENT_IDS.map((id) => {
+          const on = s.instruments.includes(id);
+          const last = on && s.instruments.length === 1;
+          return (
+            <label key={id} className={styles.row}>
+              <span>
+                {INSTRUMENT_META[id].name}
+                {last && <span className={styles.hint}>At least one instrument stays on</span>}
+              </span>
+              <input type="checkbox" role="switch" className={styles.switch} checked={on} disabled={last} onChange={() => s.toggleInstrument(id)} />
+            </label>
+          );
+        })}
+      </section>
+
       {!standalone && (
         <section className={styles.group} aria-labelledby="install-h">
           <h2 id="install-h" className={styles.h2}>
@@ -97,6 +118,17 @@ export function Settings() {
         </h2>
         <p className={styles.body}>
           Piano: Salamander Grand Piano by Alexander Holm, licensed{' '}
+          <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">
+            CC BY 3.0
+          </a>
+          .
+        </p>
+        <p className={styles.body}>
+          Guitar, strings, organ and flute:{' '}
+          <a href="https://github.com/nbrosowsky/tonejs-instruments" target="_blank" rel="noreferrer">
+            tonejs-instruments
+          </a>{' '}
+          by Nicholaus Brosowsky, licensed{' '}
           <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noreferrer">
             CC BY 3.0
           </a>

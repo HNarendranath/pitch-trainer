@@ -6,6 +6,10 @@ import { levelReadiness, readinessText } from '../srs/mastery';
 import { levelAttempts, recordAttempt, setLastLevel } from '../db/queries';
 import { isPlaying, playSequence, stopAll } from '../audio/engine';
 import { preloadInstrument } from '../audio/instruments';
+import { instrumentsFor } from '../theory/instruments';
+import { pick } from '../theory/notes';
+import { sequenceNotes } from '../theory/sequence';
+import { useSettings } from '../state/settings';
 import { StrobeRing, type RingState } from './StrobeRing';
 import { CloseIcon } from './icons';
 import { MusicText } from './MusicText';
@@ -28,6 +32,8 @@ interface SessionAttempt extends AttemptLite {
 export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
   const mode = modeById(def.id)!;
   const options = useMemo(() => def.options(level), [def, level]);
+  const enabledInstruments = useSettings((s) => s.instruments);
+  const columns = def.columns ?? (options.length <= 6 ? 3 : 4);
   const compact = options.length > 12;
 
   const [baseAttempts, setBase] = useState<AttemptLite[] | null>(null);
@@ -44,17 +50,24 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
   const playToken = useRef(0);
   const advanceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  /** Questions that don't name an instrument get one of yours that can play every note. */
+  function withInstrument(q: Question): Question {
+    const instrument = q.instrument ?? pick(instrumentsFor(sequenceNotes(q.sequence), enabledInstruments));
+    preloadInstrument(instrument);
+    return { ...q, instrument };
+  }
+
   // Load this level's history once, then ask the first question.
   useEffect(() => {
     let alive = true;
-    preloadInstrument('piano');
+    enabledInstruments.forEach(preloadInstrument);
     void setLastLevel(def.id, level.n);
     void levelAttempts(def.id, level.n).then((rows) => {
       if (!alive) return;
       const base = rows.map((r) => ({ item: r.item, answer: r.answer, correct: r.correct, ms: r.ms }));
       setBase(base);
       const item = pickNext({ items: level.items, history: buildHistory(base) });
-      setQ(def.generate(item, level));
+      setQ(withInstrument(def.generate(item, level)));
     });
     return () => {
       alive = false;
@@ -63,7 +76,7 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
     };
   }, [def, level]);
 
-  const play = useCallback(async (question: Question, interrupt = false) => {
+  const play = useCallback(async (question: Question, { interrupt = false, replay = false } = {}) => {
     if (!interrupt && isPlaying()) return;
     const token = ++playToken.current;
     setRing('playing');
@@ -72,7 +85,7 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
       return true;
     });
     try {
-      await playSequence(question.sequence, { instrument: question.instrument, interrupt });
+      await playSequence(question.sequence, { instrument: question.instrument, interrupt, skipNoise: replay });
     } finally {
       if (token === playToken.current) setRing((r) => (r === 'playing' ? 'idle' : r));
     }
@@ -89,11 +102,11 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
       const history = buildHistory([...(baseAttempts ?? []), ...all]);
       const item = pickNext({ items: level.items, history, last: all.at(-1)?.item, followUp: followUp.current });
       followUp.current = undefined;
-      const nq = def.generate(item, level);
+      const nq = withInstrument(def.generate(item, level));
       setQ(nq);
       setPicked(null);
       setHeard(false);
-      void play(nq, true);
+      void play(nq, { interrupt: true });
     },
     [baseAttempts, def, level, play],
   );
@@ -161,7 +174,7 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
           state={ring}
           label={ringLabel}
           sublabel={ringSub}
-          onPress={() => q && void play(q)}
+          onPress={() => q && void play(q, { replay: heard })}
           ariaLabel={heard ? 'Replay' : 'Play'}
           disabled={!q}
           size={compact ? 184 : 232}
@@ -171,7 +184,7 @@ export function PracticeRunner({ def, level, onExit, onAgain }: Props) {
         </p>
       </div>
 
-      <div className={styles.answers} role="group" aria-label="Answers" data-cols={options.length <= 6 ? 3 : 4}>
+      <div className={styles.answers} role="group" aria-label="Answers" data-cols={columns}>
         {options.map((o) => {
           const state = !answered || !q ? undefined : o.id === q.answerId ? 'correct' : o.id === picked ? 'wrong' : 'dim';
           return (
