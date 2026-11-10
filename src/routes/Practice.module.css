@@ -9,6 +9,8 @@
   margin-inline: auto;
 }
 
+/* ---------- Session header ---------- */
+
 .top {
   display: grid;
   grid-template-columns: var(--target) 1fr var(--target);
@@ -25,10 +27,19 @@
 }
 
 .title {
-  text-align: center;
+  display: grid;
+  justify-items: center;
   font-size: var(--step-0);
   font-weight: 650;
   font-stretch: 110%;
+  line-height: 1.15;
+}
+
+.titleLevel {
+  font-size: var(--step--2);
+  font-weight: 500;
+  font-stretch: 100%;
+  color: var(--text-muted);
 }
 
 .count {
@@ -52,6 +63,8 @@
   transition: inline-size var(--dur) var(--ease-out);
 }
 
+/* ---------- Listening stage ---------- */
+
 .stage {
   display: grid;
   place-content: center;
@@ -60,18 +73,29 @@
   padding-block: var(--s5);
 }
 
+.page[data-compact] .stage {
+  gap: var(--s3);
+  padding-block: var(--s3);
+}
+
 .prompt {
-  min-block-size: 1.5em;
+  min-block-size: 2.9em;
+  max-inline-size: 30ch;
   color: var(--text-muted);
   font-size: var(--step--1);
   text-align: center;
 }
 
-/* Answer keys: ordered by size, laid out like a row of keys. */
+/* ---------- Answer keys: ordered by size, laid out like a row of keys ---------- */
+
 .answers {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--s2);
+}
+
+.answers[data-cols='3'] {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .key {
@@ -91,6 +115,11 @@
     opacity var(--dur);
 }
 
+.page[data-compact] .key {
+  min-block-size: 52px;
+  padding-block: var(--s1);
+}
+
 .key:active:not([aria-disabled='true']) {
   transform: translateY(1px);
   border-block-end-width: 2px;
@@ -108,11 +137,19 @@
   line-height: 1;
 }
 
+.page[data-compact] .keyShort {
+  font-size: var(--step-1);
+}
+
 .keyName {
   font-size: 0.6875rem;
   color: var(--text-muted);
   line-height: 1.15;
   text-align: center;
+}
+
+.page[data-compact] .keyName {
+  display: none;
 }
 
 .key[data-state='correct'] {
@@ -130,40 +167,51 @@
 }
 
 .footer {
-  min-block-size: calc(var(--target) + var(--s4));
+  min-block-size: calc(52px + var(--s4));
   padding-block-start: var(--s4);
   display: grid;
 }
 
-.primary {
-  display: grid;
-  place-items: center;
-  min-block-size: 52px;
-  border-radius: 999px;
-  background: var(--text);
-  color: var(--bg);
-  font-weight: 650;
-  text-decoration: none;
-}
+/* ---------- Buttons ---------- */
 
+.primary,
 .secondary {
   display: grid;
   place-items: center;
   min-block-size: 52px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  font-weight: 600;
+  font-weight: 650;
   text-decoration: none;
 }
 
+.primary {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.primary:disabled {
+  opacity: 0.5;
+}
+
+.secondary {
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+
+/* ---------- Summary ---------- */
+
 .summary {
-  grid-template-rows: 1fr auto auto 1fr;
-  align-content: center;
+  grid-template-rows: 1fr auto;
+  gap: var(--s6);
+}
+
+.summaryBody {
+  align-self: center;
+  display: grid;
   gap: var(--s3);
 }
 
 .score {
-  grid-row: 2;
   font-size: var(--step-6);
   font-weight: 800;
   font-stretch: 125%;
@@ -178,13 +226,165 @@
 }
 
 .summaryText {
-  grid-row: 3;
+  color: var(--text-muted);
+}
+
+.unlock {
+  justify-self: start;
+  padding: var(--s2) var(--s4);
+  border-radius: 999px;
+  font-weight: 650;
+  color: var(--on-accent);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.mixups {
+  margin-block-start: var(--s3);
+  display: grid;
+  gap: var(--s2);
+}
+
+.mixupsTitle {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.mixups ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s1);
+}
+
+.mixups strong {
+  font-weight: 700;
+  font-stretch: 112%;
+}
+
+.times {
+  color: var(--text-muted);
+}
+
+.readiness {
+  margin-block-start: var(--s3);
+  font-size: var(--step--1);
   color: var(--text-muted);
 }
 
 .summaryActions {
-  grid-row: 4;
-  align-self: end;
   display: grid;
   gap: var(--s3);
+}
+
+/* ---------- Level setup ---------- */
+
+.setup {
+  grid-template-rows: auto auto 1fr auto;
+  gap: var(--s4);
+}
+
+.setupTitle {
+  font-size: var(--step-4);
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.02em;
+}
+
+.setupLead {
+  margin-block-start: var(--s2);
+  color: var(--text-muted);
+  font-size: var(--step--1);
+}
+
+.levels {
+  display: grid;
+  align-content: start;
+  gap: var(--s2);
+}
+
+.levelRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: var(--s3);
+  align-items: start;
+  padding: var(--s3);
+  border-radius: 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.levelRow input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.levelRow:has(input:checked) {
+  background: var(--surface);
+  border-color: color-mix(in oklab, var(--accent) 55%, var(--line));
+}
+
+.levelRow:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Level numbers are a real sequence, so they're shown as fret markers. */
+.levelNum {
+  display: grid;
+  place-items: center;
+  inline-size: 36px;
+  block-size: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  font-weight: 700;
+  font-stretch: 115%;
+}
+
+.levelRow:has(input:checked) .levelNum {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: var(--on-accent);
+}
+
+.levelRow[data-ahead] .levelNum {
+  border-style: dashed;
+}
+
+.levelText {
+  display: grid;
+  gap: 2px;
+}
+
+.levelName {
+  font-weight: 650;
+  font-stretch: 108%;
+}
+
+.levelDesc {
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+.levelMeta {
+  font-size: var(--step--2);
+  color: var(--text-muted);
+  margin-block-start: 2px;
+}
+
+.levelRow[data-ahead] .levelName {
+  color: var(--text-muted);
+}
+
+.setupActions {
+  position: sticky;
+  display: grid;
+  inset-block-end: 0;
+  padding-block: var(--s3) max(0px, env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
 }

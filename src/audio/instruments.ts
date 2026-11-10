@@ -1,6 +1,7 @@
 import * as Tone from 'tone';
 
-export type InstrumentId = 'piano';
+import type { InstrumentId } from '../theory/instruments';
+export type { InstrumentId };
 
 interface InstrumentDef {
   id: InstrumentId;

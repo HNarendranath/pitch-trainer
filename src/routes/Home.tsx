@@ -2,17 +2,19 @@ import { Link } from 'react-router';
 import { MODES, type ModeMeta } from '../exercises/modes';
 import { ModeString } from '../ui/ModeString';
 import { useSettings } from '../state/settings';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { allProgress, answeredToday, currentStreak } from '../db/queries';
+import { EXERCISES } from '../exercises/registry';
 import styles from './Home.module.css';
 
+/** `level` 0 means the mode isn't playable yet. */
 function ModeRow({ mode, level }: { mode: ModeMeta; level: number }) {
   return (
     <li>
-      <Link to={`/practice/${mode.id}`} className={styles.row}>
+      <Link to={`/practice/${mode.id}`} className={styles.row} data-soon={level === 0 || undefined}>
         <span className={styles.rowHead}>
           <span className={styles.rowName}>{mode.name}</span>
-          <span className={styles.rowLevel}>
-            Level {level} of {mode.levels}
-          </span>
+          <span className={styles.rowLevel}>{level === 0 ? 'Coming soon' : `Level ${level} of ${mode.levels}`}</span>
         </span>
         <span className={styles.rowBlurb}>{mode.blurb}</span>
         <ModeString levels={mode.levels} level={level} />
@@ -23,9 +25,11 @@ function ModeRow({ mode, level }: { mode: ModeMeta; level: number }) {
 
 export function Home() {
   const goal = useSettings((s) => s.dailyGoal);
-  // Wired to real stats in the persistence milestone.
-  const answeredToday = 0;
-  const pct = Math.min(1, answeredToday / goal);
+  const today = useLiveQuery(() => answeredToday(), []) ?? 0;
+  const streak = useLiveQuery(() => currentStreak(), []) ?? 0;
+  const progress = useLiveQuery(() => allProgress(), []);
+  const pct = Math.min(1, today / goal);
+  const levelFor = (m: ModeMeta) => (EXERCISES[m.id] ? (progress?.get(m.id)?.unlocked ?? 1) : 0);
 
   const listen = MODES.filter((m) => m.group === 'listen');
   const sing = MODES.filter((m) => m.group === 'sing');
@@ -41,9 +45,10 @@ export function Home() {
           </svg>
           <p>
             <strong>
-              {answeredToday} of {goal}
+              {today} of {goal}
             </strong>{' '}
             answers today
+            {streak > 1 && <span className={styles.streak}>{streak}-day streak</span>}
           </p>
         </div>
       </header>
@@ -54,7 +59,7 @@ export function Home() {
         </h2>
         <ul className={styles.list}>
           {listen.map((m) => (
-            <ModeRow key={m.id} mode={m} level={1} />
+            <ModeRow key={m.id} mode={m} level={levelFor(m)} />
           ))}
         </ul>
       </section>
@@ -65,7 +70,7 @@ export function Home() {
         </h2>
         <ul className={styles.list}>
           {sing.map((m) => (
-            <ModeRow key={m.id} mode={m} level={1} />
+            <ModeRow key={m.id} mode={m} level={levelFor(m)} />
           ))}
         </ul>
       </section>

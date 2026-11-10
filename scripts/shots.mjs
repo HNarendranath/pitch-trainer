@@ -25,7 +25,10 @@ for (const [name, dev] of Object.entries(devices)) {
   await shot('home');
 
   await page.goto(`${base}/#/practice/intervals`);
-  await page.waitForTimeout(300);
+  await page.waitForTimeout(400);
+  await shot('level-setup');
+  await page.getByRole('button', { name: /^Start level/ }).click();
+  await page.waitForTimeout(600);
   await shot('practice-start');
   await page.getByRole('button', { name: 'Play' }).click();
   await page.waitForTimeout(400);

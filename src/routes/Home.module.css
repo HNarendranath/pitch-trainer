@@ -109,3 +109,12 @@
   color: var(--text-muted);
   margin-block-end: var(--s2);
 }
+
+.streak {
+  display: block;
+  color: var(--text-muted);
+}
+
+.row[data-soon] .rowName {
+  color: var(--text-muted);
+}

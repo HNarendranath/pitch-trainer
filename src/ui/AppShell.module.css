@@ -18,9 +18,7 @@
   grid-template-columns: repeat(3, 1fr);
   padding-block-end: env(safe-area-inset-bottom, 0px);
   padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
-  background: color-mix(in oklab, var(--bg) 96%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: var(--bg);
   border-block-start: 1px solid var(--line);
   z-index: 10;
 }

@@ -9,6 +9,7 @@ await page.addInitScript(() => {
   AudioBufferSourceNode.prototype.start = function (...a) { if (this.buffer && this.buffer.duration > 0.5) window.__starts++; return orig.apply(this, a); };
 });
 await page.goto((process.argv[2] ?? 'http://localhost:4173') + '/#/practice/intervals');
+await page.getByRole('button', { name: /^Start level/ }).click();
 await page.waitForTimeout(1500); // samples load
 const ring = page.locator('button[data-state]');
 await ring.click(); await ring.click({ delay: 0 }); await page.waitForTimeout(150); await ring.click();

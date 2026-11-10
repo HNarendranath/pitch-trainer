@@ -1,0 +1,20 @@
+/* Noto Music draws accidentals for staff placement: ♯ is centred on the
+   baseline, ♭ sits on it. Each gets its own offset to align with letters. */
+.acc {
+  font-family: var(--font-music);
+  font-size: 1.3em;
+  line-height: 0;
+  margin-inline: 0.02em 0.04em;
+}
+
+.sharp {
+  vertical-align: 0.24em;
+}
+
+.flat {
+  vertical-align: -0.04em;
+}
+
+.natural {
+  vertical-align: 0.24em;
+}
