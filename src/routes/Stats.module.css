@@ -1,0 +1,140 @@
+.page {
+  display: grid;
+  gap: var(--s6);
+  align-content: start;
+}
+
+.h1 {
+  font-size: var(--step-4);
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.02em;
+  padding-block-start: var(--s2);
+}
+
+.h2 {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.empty {
+  color: var(--text-muted);
+  max-inline-size: 36ch;
+}
+
+.cta {
+  justify-self: start;
+  display: inline-grid;
+  place-items: center;
+  min-block-size: 48px;
+  padding-inline: var(--s5);
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+/* ---------- Headline numbers ---------- */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s2);
+  margin: 0;
+}
+
+.tile {
+  display: grid;
+  gap: var(--s1);
+  padding: var(--s3);
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
+}
+
+.tile dt {
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+.tile dd {
+  margin: 0;
+  font-size: var(--step-3);
+  font-weight: 800;
+  font-stretch: 120%;
+  line-height: 1;
+  display: grid;
+  gap: 2px;
+}
+
+.tile dd span {
+  font-size: var(--step--2);
+  font-weight: 500;
+  font-stretch: 100%;
+  color: var(--text-muted);
+}
+
+/* ---------- Per exercise ---------- */
+
+.section {
+  display: grid;
+  gap: var(--s3);
+}
+
+.note {
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}
+
+.modes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s4);
+}
+
+.mode {
+  display: grid;
+  gap: var(--s2);
+}
+
+.modeHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s3);
+}
+
+.modeName {
+  font-weight: 650;
+  font-stretch: 108%;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.pct {
+  font-weight: 700;
+  font-stretch: 112%;
+}
+
+.bar {
+  block-size: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  block-size: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.modeMeta {
+  font-size: var(--step--2);
+  color: var(--text-muted);
+}

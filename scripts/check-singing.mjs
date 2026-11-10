@@ -56,7 +56,7 @@ async function sweep(page, cents = 0, snapOff) {
     await page.evaluate((hz) => window.__mic(hz), hzFor(k, cents));
     await page.waitForTimeout(350);
     if (snapOff && k === 0 && (await ring(page).getAttribute('data-state')) !== 'correct') await shot(page, snapOff);
-    await page.waitForTimeout(950);
+    await page.waitForTimeout(1250); // the app ignores the first 0.6 s after a note
     if ((await ring(page).getAttribute('data-state')) === 'correct') {
       await page.evaluate(() => window.__mic(0));
       return k;
@@ -68,7 +68,7 @@ async function sweep(page, cents = 0, snapOff) {
 // 1. Setup screen, primer, two matched notes and a skip on level 1.
 {
   const page = await open();
-  await page.goto(`${base}/#/practice/singing`);
+  await page.goto(`${base}/practice/singing`);
   await page.getByRole('radio', { name: /Lower/ }).waitFor();
   await shot(page, 'sing-setup');
   await page.getByRole('button', { name: /^Start level/ }).click();
@@ -90,13 +90,18 @@ async function sweep(page, cents = 0, snapOff) {
   await page.getByRole('button', { name: 'Next note' }).waitFor();
   result.skipReveal = await page.getByRole('status').first().innerText();
   await shot(page, 'sing-missed');
+  // Relaunch (iPhone forgets the permission): no explainer, straight to Start.
+  await page.reload();
+  await page.getByRole('button', { name: /^Start level/ }).click();
+  await page.getByRole('button', { name: 'Start' }).waitFor({ timeout: 5000 });
+  result.relaunchSkipsPrimer = !(await page.getByRole('button', { name: 'Turn on microphone' }).isVisible());
   await page.close();
 }
 
 // 2. From memory (level 5): hold a steady A3 and check the judgement.
 {
   const page = await open();
-  await page.goto(`${base}/#/practice/singing`);
+  await page.goto(`${base}/practice/singing`);
   await page.getByText('Not practised yet').first().waitFor();
   await page.locator('input[name=level][value="5"]').dispatchEvent('click');
   await page.getByRole('button', { name: /^Start level/ }).click();
@@ -117,7 +122,7 @@ async function sweep(page, cents = 0, snapOff) {
 // 3. Mic refused.
 {
   const page = await open(true);
-  await page.goto(`${base}/#/practice/singing`);
+  await page.goto(`${base}/practice/singing`);
   await page.getByRole('button', { name: /^Start level/ }).click();
   await page.getByRole('button', { name: 'Turn on microphone' }).click();
   await page.getByRole('heading', { name: 'Microphone is off' }).waitFor();

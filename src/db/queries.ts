@@ -76,3 +76,38 @@ export async function currentStreak(now = Date.now()): Promise<number> {
     });
   return streakLength(days, now);
 }
+
+export interface ModeSummary {
+  mode: ModeId;
+  answers: number;
+  /** Accuracy over the most recent answers (up to RECENT_FOR_STATS). */
+  recentAccuracy: number;
+  recentCount: number;
+  lastTs: number;
+}
+
+export const RECENT_FOR_STATS = 50;
+
+/** Per-exercise totals and recent accuracy, most recently practised first. */
+export async function modeSummaries(): Promise<ModeSummary[]> {
+  const byMode = new Map<ModeId, { answers: number; recent: boolean[]; lastTs: number }>();
+  // Newest first, so the first RECENT_FOR_STATS seen per mode are the recent ones.
+  await db.attempts
+    .orderBy('ts')
+    .reverse()
+    .each((a) => {
+      const m = byMode.get(a.mode) ?? { answers: 0, recent: [], lastTs: a.ts };
+      m.answers++;
+      if (m.recent.length < RECENT_FOR_STATS) m.recent.push(a.correct);
+      byMode.set(a.mode, m);
+    });
+  return [...byMode.entries()]
+    .map(([mode, m]) => ({
+      mode,
+      answers: m.answers,
+      recentCount: m.recent.length,
+      recentAccuracy: m.recent.filter(Boolean).length / m.recent.length,
+      lastTs: m.lastTs,
+    }))
+    .sort((a, b) => b.lastTs - a.lastTs);
+}

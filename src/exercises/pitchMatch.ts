@@ -87,7 +87,8 @@ export class Hold {
       cents,
       inTune: ok,
       progress,
-      done: progress >= 1,
+      // Only finish on an in-tune reading: sliding off at the end mustn't count.
+      done: progress >= 1 && ok,
       heldMidi: this.n > 0 ? this.sum / this.n : null,
     };
     if (state.done) this.finished = state;

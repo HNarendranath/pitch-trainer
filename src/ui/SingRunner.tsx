@@ -79,10 +79,11 @@ export function SingRunner({ level, onExit, onAgain }: Props) {
       baseRef.current = rows.map((r) => ({ item: r.item, answer: r.answer, correct: r.correct, ms: r.ms }));
       setBase(baseRef.current);
     });
-    // Skip the explainer if the mic is already allowed.
+    // Skip the explainer if the mic is allowed, or was allowed before (an
+    // iPhone home-screen app forgets on relaunch; tapping Start re-asks).
     void micPermission().then((state) => {
       if (!alive) return;
-      if (state === 'granted') setPhase('run');
+      if (state === 'granted' || (state !== 'denied' && useSettings.getState().micAllowedBefore)) setPhase('run');
       else if (state === 'denied') {
         setProblem('denied');
         setPhase('blocked');
@@ -115,8 +116,10 @@ export function SingRunner({ level, onExit, onAgain }: Props) {
     try {
       listener.current = await PitchListener.open();
       listener.current.start((m, t) => onReading.current(m, t));
+      useSettings.getState().setMicAllowedBefore(true);
       return true;
     } catch (e) {
+      if (e instanceof MicError && e.problem === 'denied') useSettings.getState().setMicAllowedBefore(false);
       setProblem(e instanceof MicError ? e.problem : 'unknown');
       setPhase('blocked');
       return false;

@@ -88,6 +88,15 @@ describe('holding a note', () => {
     expect(s.progress).toBeGreaterThan(0.6);
   });
 
+  it('never finishes on an out-of-tune reading, even inside the grace window', () => {
+    const hold = new Hold({ target: 57, tolerance: 30 });
+    run(hold, steady(57, 0, 700));
+    const slid = run(hold, steady(58, 720, 860)); // a semitone off, past the hold time
+    expect(slid.done).toBe(false);
+    run(hold, steady(58, 880, 960)); // off for longer than the grace window
+    expect(run(hold, steady(57, 980, 1000)).done).toBe(false); // so the hold restarted
+  });
+
   it('without a target, judges any steady note and reports it', () => {
     const slide = [...steady(50, 0, 300), ...steady(53.2, 320, 1400)];
     const s = run(new Hold({ tolerance: 40 }), slide);

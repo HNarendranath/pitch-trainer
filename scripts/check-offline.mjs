@@ -14,7 +14,7 @@ const cached = await page.evaluate(async () => {
   return { piano, total };
 });
 await ctx.setOffline(true);
-await page.goto(url + '#/practice/intervals');
-const offlineOk = await page.getByRole('button', { name: 'Play' }).isVisible();
+await page.goto(url + '/practice/intervals');
+const offlineOk = await page.getByRole('heading', { name: 'Intervals' }).isVisible();
 console.log(JSON.stringify({ swState, ...cached, offlineOk }));
 await browser.close();

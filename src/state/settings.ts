@@ -14,12 +14,19 @@ interface SettingsState {
   haptics: boolean;
   instrument: InstrumentChoice;
   voice: VoiceRange;
+  /**
+   * The mic has been allowed before. iPhone home-screen apps forget the
+   * permission on relaunch, so this skips the explainer and goes straight
+   * to the system prompt.
+   */
+  micAllowedBefore: boolean;
   setTheme: (t: ThemePref) => void;
   setDailyGoal: (n: number) => void;
   setFeedbackSounds: (on: boolean) => void;
   setHaptics: (on: boolean) => void;
   setInstrument: (i: InstrumentChoice) => void;
   setVoice: (v: VoiceRange) => void;
+  setMicAllowedBefore: (on: boolean) => void;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -31,6 +38,7 @@ export const useSettings = create<SettingsState>()(
       haptics: true,
       instrument: 'piano',
       voice: 'low',
+      micAllowedBefore: false,
       setTheme: (theme) => {
         set({ theme });
         applyTheme(theme);
@@ -40,6 +48,7 @@ export const useSettings = create<SettingsState>()(
       setHaptics: (haptics) => set({ haptics }),
       setInstrument: (instrument) => set({ instrument }),
       setVoice: (voice) => set({ voice }),
+      setMicAllowedBefore: (micAllowedBefore) => set({ micAllowedBefore }),
     }),
     {
       name: 'pt-settings',

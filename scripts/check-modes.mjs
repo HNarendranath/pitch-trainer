@@ -12,7 +12,7 @@ const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 const results = {};
 for (const mode of modes) {
-  await page.goto(`${base}/#/practice/${mode}`);
+  await page.goto(`${base}/practice/${mode}`);
   if (levelArg) await page.locator(`input[name=level][value="${levelArg}"]`).check({ force: true });
   await page.getByRole('button', { name: /^Start level/ }).click();
   const ring = page.locator('button[data-state]');

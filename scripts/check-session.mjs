@@ -7,7 +7,7 @@ const browser = await chromium.launch({ channel: 'chrome', args: ['--autoplay-po
 const page = await (await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: 'dark' })).newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
-await page.goto(`${base}/#/practice/intervals`);
+await page.goto(`${base}/practice/intervals`);
 await page.getByRole('button', { name: /^Start level/ }).click();
 const ring = page.locator('button[data-state]');
 await ring.click(); // first play needs a tap
@@ -34,15 +34,25 @@ await page.getByRole('button', { name: 'Done' }).click();
 await page.waitForTimeout(500);
 const home = await page.locator('body').innerText();
 if (out) await page.screenshot({ path: `${out}/home-after.png` });
-await page.goto(`${base}/#/practice/intervals`);
+await page.goto(`${base}/practice/intervals`);
 await page.waitForTimeout(500);
 if (out) await page.screenshot({ path: `${out}/setup-after.png` });
 const setup = await page.locator('body').innerText();
+// Stats reads the same answers (tab bar navigation, then a direct load of /stats).
+await page.goto(`${base}/`);
+await page.getByRole('link', { name: 'Stats' }).click();
+await page.getByText('All time').waitFor();
+if (out) await page.screenshot({ path: `${out}/stats.png`, fullPage: true });
+const stats = await page.locator('body').innerText();
+await page.goto(`${base}/stats`);
+const statsDirect = await page.getByText('By exercise').waitFor({ timeout: 5000 }).then(() => true, () => false);
 console.log(JSON.stringify({
   wrongs,
   summaryHasMixups: summary.includes('Mixed up') === wrongs > 0,
   homeCount: /20 of 40/.test(home),
   setupAccuracy: (setup.match(/\d+% over your last 20/) ?? [null])[0],
+  statsShowsSession: /20\s*answers/.test(stats) && stats.includes('Intervals') && !stats.includes('Nothing here yet'),
+  statsDirect,
   errors,
 }));
 await browser.close();

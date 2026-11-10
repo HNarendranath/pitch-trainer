@@ -20,11 +20,11 @@ for (const [name, dev] of Object.entries(devices)) {
   page.on('console', (m) => m.type() === 'error' && errors.push(`${name} console: ${m.text()}`));
   const shot = async (label) => page.screenshot({ path: `${out}/${name}-${scheme}-${label}.png` });
 
-  await page.goto(`${base}/#/`);
+  await page.goto(`${base}/`);
   await page.waitForLoadState('networkidle');
   await shot('home');
 
-  await page.goto(`${base}/#/practice/intervals`);
+  await page.goto(`${base}/practice/intervals`);
   await page.waitForTimeout(400);
   await shot('level-setup');
   await page.getByRole('button', { name: /^Start level/ }).click();
@@ -39,7 +39,7 @@ for (const [name, dev] of Object.entries(devices)) {
   await page.waitForTimeout(500);
   await shot('practice-answered');
 
-  await page.goto(`${base}/#/settings`);
+  await page.goto(`${base}/settings`);
   await page.waitForTimeout(300);
   await shot('settings');
   await ctx.close();
